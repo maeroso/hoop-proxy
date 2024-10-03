@@ -1,9 +1,13 @@
 import Foundation
 
-actor ProcessManager {
-    func connectToAll(connections: [String: Int]) async throws -> [Process] {
+
+struct ProcessManager {
+    static var shared = ProcessManager()
+
+    var processes: [Process] = []
+
+    mutating func connectToAll(connections: [String: Int]) async throws -> [Process] {
         print("Connecting...")
-        var processes: [Process] = []
         
         for (connection, port) in connections {
             let process = Process()
@@ -11,8 +15,14 @@ actor ProcessManager {
             process.arguments = ["hoop", "connect", connection, "-p", String(port)]
             processes.append(process)
         }
-        
+
         return processes
+    }
+    
+    func killAll() {
+        processes.forEach { process in
+            process.terminate()
+        }
     }
     
     func waitForEOF(input: FileHandle = FileHandle.standardInput) async throws {

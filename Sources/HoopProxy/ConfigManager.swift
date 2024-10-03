@@ -1,5 +1,22 @@
 import Foundation
 import TOMLKit
+import JWTKit
+
+struct ExamplePayload: JWTPayload {
+    var sub: SubjectClaim
+    var exp: ExpirationClaim
+    var admin: BoolClaim
+
+    func verify(using _: some JWTAlgorithm) throws {
+        try self.exp.verifyNotExpired()
+    }
+}
+
+enum ConfigManagerError: Error {
+    case loginFailed(String)
+    case configReadFailed(String)
+    case tokenVerificationFailed(String)
+}
 
 actor ConfigManager {
     let hoopConfigDir: URL
@@ -10,7 +27,7 @@ actor ConfigManager {
     }
     
     func checkHoop() async throws {
-        print("Checking hoop installation...", terminator: " ")
+        print("Checking hoop installation...")
         let process = Process()
         process.executableURL = URL(filePath: "/usr/bin/env")
         process.arguments = ["hoop", "version"]
@@ -23,35 +40,47 @@ actor ConfigManager {
         }
     }
     
-    func checkAuth() async throws {
-        print("Checking hoop authentication...", terminator: " ")
-        let configPath = hoopConfigDir.appending(path: "config.toml")
-        
-        if let contents = try? String(contentsOf: configPath) {
-            if let config = try? TOMLTable(string: contents) {
-                config["token"]?.string
-            }
-            return
-        }
-        
-        
-        
+    func login() throws {
         let process = Process()
         process.executableURL = URL(filePath: "/usr/bin/env")
         process.arguments = ["hoop", "login"]
         
         do {
             try process.run()
+            process.waitUntilExit()
             if process.terminationStatus != 0 {
-                throw RuntimeError("Login failed. Please try again.")
+                throw ConfigManagerError.loginFailed("Login failed. Please try again.")
             }
         } catch {
-            throw RuntimeError("Failed to run hoop login. Error: \(error)")
+            throw ConfigManagerError.loginFailed("Failed to run hoop login. Error: \(error)")
+        }
+    }
+    
+    func checkAuth() async throws {
+        print("Checking hoop authentication...", terminator: " ")
+        let configPath = hoopConfigDir.appendingPathComponent("config.toml")
+        
+        guard let contents = try? String(contentsOf: configPath) else {
+            throw ConfigManagerError.configReadFailed("Failed to read config file at \(configPath).")
+        }
+        
+        guard let config = try? TOMLTable(string: contents) else {
+            throw ConfigManagerError.configReadFailed("Failed to parse config file.")
+        }
+        
+        guard let token = config["token"]?.string else {
+            throw ConfigManagerError.configReadFailed("Token not found in config file.")
+        }
+        
+        do {
+            let _: ExamplePayload = try await JWTKeyCollection().verify(token)
+        } catch {
+            try self.login()
         }
     }
     
     func readConnectionsFile() async throws -> [String: Int] {
-        print("Reading connections.toml...", terminator: " ")
+        print("Reading connections.toml...")
         let connectionsPath = hoopConfigDir.appending(path: "connections.toml")
         
         guard let contents = try? String(contentsOf: connectionsPath) else {

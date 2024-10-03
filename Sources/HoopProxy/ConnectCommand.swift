@@ -1,5 +1,6 @@
 import Foundation
 import ArgumentParser
+import Darwin
 
 struct ConnectCommand: AsyncParsableCommand {
     static var configuration = CommandConfiguration(
@@ -12,22 +13,33 @@ struct ConnectCommand: AsyncParsableCommand {
     
     func run() async throws {
         let configManager = ConfigManager()
-        let processManager = ProcessManager()
         
         if verbose { print("Starting Hoop CLI...") }
+        
+        // Register signal handlers for Linux/macOS
+        signal(SIGINT) { signal in
+            print("Caught SIGINT (Ctrl+C), exiting gracefully...")
+            ProcessManager.shared.killAll()
+            ConnectCommand.exit()
+        }
+        signal(SIGTERM) { signal in
+            print("Caught SIGTERM (Termination), exiting gracefully...")
+            ProcessManager.shared.killAll()
+            ConnectCommand.exit()
+        }
         
         do {
             try await configManager.checkHoop()
             try await configManager.checkAuth()
             let connections = try await configManager.readConnectionsFile()
             
-            let processes = try await processManager.connectToAll(connections: connections)
-            
+            let processes = try await ProcessManager.shared.connectToAll(connections: connections)
+
             if verbose { print("All connections established. Press Ctrl+D to exit.") }
             
             try await withThrowingTaskGroup(of: Void.self) { group in
                 group.addTask {
-                    try await processManager.waitForEOF()
+                    try await ProcessManager.shared.waitForEOF()
                 }
                 
                 for process in processes {
