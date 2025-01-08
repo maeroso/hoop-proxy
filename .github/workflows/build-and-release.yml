@@ -1,0 +1,67 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - '*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version number'
+        required: true
+        type: string
+        default: '0.0.1'
+
+jobs:
+  create-macos-release:
+    name: Create macOS Release
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Swift
+        uses: swift-actions/setup-swift@v1
+      - name: Build Release Binaries
+        run: |
+          swift build -c release --arch arm64
+          swift build -c release --arch x86_64
+      - name: Create Universal Binary
+        run: |
+          lipo -create \
+            .build/arm64-apple-macosx/release/HoopProxy \
+            .build/x86_64-apple-macosx/release/HoopProxy \
+            -output ./HoopProxy
+      - name: Upload macOS Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-binary
+          path: ./HoopProxy
+
+  create-linux-release:
+    name: Create Linux Release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build
+        run: swift build -c release
+      - name: Upload Linux Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-binary
+          path: .build/release/HoopProxy
+
+  create-release:
+    needs: [create-macos-release, create-linux-release]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download Artifacts
+        uses: actions/download-artifact@v4
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            macos-binary/HoopProxy
+            linux-binary/HoopProxy
+          name: Release ${{ github.event.inputs.version || github.ref_name }}
+          body: Release ${{ github.event.inputs.version || github.ref_name }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
