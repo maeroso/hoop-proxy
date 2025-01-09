@@ -12,24 +12,46 @@ on:
         type: string
         default: '0.0.1'
 
+# Add these permissions at the workflow level
+permissions:
+  contents: write    # This allows creating releases and pushing tags
+  packages: read
+
 jobs:
   create-macos-release:
     name: Create macOS Release
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
+      
       - name: Set up Swift
         uses: swift-actions/setup-swift@v2
+      
+      - name: Cache Swift packages
+        uses: actions/cache@v4
+        with:
+          path: |
+            .build
+            ~/Library/Caches/org.swift.swiftpm
+            ~/Library/Developer/Xcode/DerivedData
+          key: ${{ runner.os }}-spm-${{ hashFiles('**/Package.resolved') }}
+          restore-keys: |
+            ${{ runner.os }}-spm-
+      
       - name: Build Release Binaries
         run: |
-          swift build -c release --arch arm64
-          swift build -c release --arch x86_64
+          swift build -c release --arch arm64 -j auto
+          swift build -c release --arch x86_64 -j auto
+        env:
+          SWIFT_DETERMINISTIC_HASHING: 1
+          
       - name: Create Universal Binary
         run: |
           lipo -create \
             .build/arm64-apple-macosx/release/HoopProxy \
             .build/x86_64-apple-macosx/release/HoopProxy \
             -output ./HoopProxy
+            
       - name: Upload macOS Artifact
         uses: actions/upload-artifact@v4
         with:
@@ -41,8 +63,22 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      
+      - name: Cache Swift packages
+        uses: actions/cache@v4
+        with:
+          path: |
+            .build
+            ~/.cache/swiftpm
+          key: ${{ runner.os }}-spm-${{ hashFiles('**/Package.resolved') }}
+          restore-keys: |
+            ${{ runner.os }}-spm-
+      
       - name: Build
-        run: swift build -c release
+        run: swift build -c release -j auto
+        env:
+          SWIFT_DETERMINISTIC_HASHING: 1
+          
       - name: Upload Linux Artifact
         uses: actions/upload-artifact@v4
         with:
@@ -56,12 +92,13 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}  # Explicitly use the token
       
       - name: Create Tag if Manually Triggered
         if: github.event_name == 'workflow_dispatch'
         run: |
-          git config --global user.name "GitHub Actions"
-          git config --global user.email "actions@github.com"
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git tag -a v${{ github.event.inputs.version }} -m "Release v${{ github.event.inputs.version }}"
           git push origin v${{ github.event.inputs.version }}
 
