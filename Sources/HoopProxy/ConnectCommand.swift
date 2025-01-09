@@ -1,6 +1,11 @@
 import Foundation
 import ArgumentParser
+
+#if os(macOS)
 import Darwin
+#elseif os(Linux)
+import Glibc
+#endif
 
 struct ConnectCommand: AsyncParsableCommand {
     static var configuration = CommandConfiguration(
