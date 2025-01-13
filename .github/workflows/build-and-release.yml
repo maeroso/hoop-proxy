@@ -24,9 +24,9 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Reset XCode tools
+      - name: Switch Xcode tools to latest
         run: |
-          sudo xcode-select -r
+          sudo xcode-select -s /Applications/Xcode_16.2.app
 
       - name: Cache Swift packages
         uses: actions/cache@v4
