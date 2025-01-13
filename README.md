@@ -3,49 +3,13 @@
 Hoop Proxy Manager is a Swift-based application designed to manage Hoop proxy connections. It uses the Hoop CLI to authenticate and make connections.
 
 ## Requirements
-
-- Swift 6.0 or later
-- macOS 14 Sonoma or later
+- macOS 13 Ventura or later
 - Ubuntu 20.04 or later
 - [Hoop CLI](https://hoop.dev/docs/getting-started/cli)
 
 ## Installation
 
-### macOS
-
-1. Clone the repository:
-    ```sh
-    git clone https://github.com/maeroso/hoop-proxy-manager.git
-    cd hoop-proxy-manager
-    ```
-
-2. Build the project:
-    ```sh
-    swift build -c release
-    ```
-
-3. Run the executable:
-    ```sh
-    .build/release/HoopProxyManager
-    ```
-
-### Linux
-
-1. Clone the repository:
-    ```sh
-    git clone https://github.com/maeroso/hoop-proxy-manager.git
-    cd hoop-proxy-manager
-    ```
-
-2. Build the project:
-    ```sh
-    swift build -c release
-    ```
-
-3. Run the executable:
-    ```sh
-    .build/release/HoopProxyManager
-    ```
+You can just download a binary from the [latest release available](https://github.com/maeroso/hoop-proxy-manager/releases).
 
 ## Usage
 
