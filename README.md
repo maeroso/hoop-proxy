@@ -1,6 +1,6 @@
-# HoopProxyManager
+# Hoop Proxy Manager
 
-HoopProxyManager is a Swift-based application designed to manage Hoop proxy connections. It uses the Hoop CLI to authenticate and make connections.
+Hoop Proxy Manager is a Swift-based application designed to manage Hoop proxy connections. It uses the Hoop CLI to authenticate and make connections.
 
 ## Requirements
 
