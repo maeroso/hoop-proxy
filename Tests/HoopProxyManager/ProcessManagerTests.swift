@@ -6,7 +6,7 @@
 //
 
 import XCTest
-@testable import HoopProxy
+@testable import HoopProxyManager
 
 final class ProcessManagerTests: XCTestCase {
     var processManager: ProcessManager!

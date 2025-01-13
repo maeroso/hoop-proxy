@@ -4,7 +4,7 @@
 import PackageDescription
 
 let package = Package(
-    name: "HoopProxy",
+    name: "HoopProxyManager",
     platforms: [
         .macOS(.v13)  // Targeting macOS 13 Ventura for latest Swift features
     ],
@@ -17,7 +17,7 @@ let package = Package(
         // Targets are the basic building blocks of a package, defining a module or a test suite.
         // Targets can depend on other targets in this package and products from dependencies.
         .executableTarget(
-            name: "HoopProxy",
+            name: "HoopProxyManager",
             dependencies: [
                 .product(name: "ArgumentParser", package: "swift-argument-parser"),
                 .product(name: "TOMLKit", package: "TOMLKit"),
@@ -28,6 +28,6 @@ let package = Package(
                 .unsafeFlags(["-Osize"], .when(configuration: .release)),
             ]
         ),
-        .testTarget(name: "HoopProxyTests", dependencies: ["HoopProxy"]),
+        .testTarget(name: "HoopProxyManagerTests", dependencies: ["HoopProxyManager"]),
     ]
 )

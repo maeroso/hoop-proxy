@@ -48,15 +48,15 @@ jobs:
       - name: Create Universal Binary
         run: |
           lipo -create \
-            .build/arm64-apple-macosx/release/HoopProxy \
-            .build/x86_64-apple-macosx/release/HoopProxy \
-            -output ./HoopProxy-macos
+            .build/arm64-apple-macosx/release/HoopProxyManager \
+            .build/x86_64-apple-macosx/release/HoopProxyManager \
+            -output ./HoopProxyManager-macos
 
       - name: Upload macOS Artifact
         uses: actions/upload-artifact@v4
         with:
           name: macos-binary
-          path: ./HoopProxy-macos
+          path: ./HoopProxyManager-macos
 
   create-linux-release:
     name: Create Linux Release
@@ -83,13 +83,13 @@ jobs:
 
       - name: Rename Linux Binary
         run: |
-          cp .build/release/HoopProxy ./HoopProxy-linux
+          cp .build/release/HoopProxyManager ./HoopProxyManager-linux
 
       - name: Upload Linux Artifact
         uses: actions/upload-artifact@v4
         with:
           name: linux-binary
-          path: ./HoopProxy-linux
+          path: ./HoopProxyManager-linux
 
   create-release:
     needs: [create-macos-release, create-linux-release]
@@ -118,8 +118,8 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            macos-binary/HoopProxy-macos
-            linux-binary/HoopProxy-linux
+            macos-binary/HoopProxyManager-macos
+            linux-binary/HoopProxyManager-linux
           name: Release ${{ github.event.inputs.version || github.ref_name }}
           body: Release ${{ github.event.inputs.version || github.ref_name }}
           tag_name: ${{ github.event.inputs.version && format('v{0}', github.event.inputs.version) || github.ref_name }}

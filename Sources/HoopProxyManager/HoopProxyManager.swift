@@ -1,9 +1,9 @@
 import ArgumentParser
 
 @main
-struct HoopProxy: AsyncParsableCommand {
+struct HoopProxyManager: AsyncParsableCommand {
     static var configuration = CommandConfiguration(
-        commandName: "hoop-proxy",
+        commandName: "-manager",
         abstract: "A CLI tool for managing Hoop proxy connections",
         subcommands: [ConnectCommand.self]
     )
