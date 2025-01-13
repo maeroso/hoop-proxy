@@ -4,8 +4,8 @@ Hoop Proxy Manager is a Swift-based application designed to manage Hoop proxy co
 
 ## Requirements
 
-- Swift 5.10 or later
-- macOS 13 Ventura or later
+- Swift 6.0 or later
+- macOS 14 Sonoma or later
 - Ubuntu 20.04 or later
 - [Hoop CLI](https://hoop.dev/docs/getting-started/cli)
 
