@@ -24,6 +24,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Reset XCode tools
+        run: |
+          sudo xcode-select -r
+
       - name: Cache Swift packages
         uses: actions/cache@v4
         with:
@@ -38,14 +42,14 @@ jobs:
       - name: Build Release Binaries
         run: |
           NUM_CORES=$(sysctl -n hw.ncpu)
-          swift build -c release --arch arm64 -j $NUM_CORES
-          swift build -c release --arch x86_64 -j $NUM_CORES
+          xcrun swift build -c release --arch arm64 -j $NUM_CORES
+          xcrun swift build -c release --arch x86_64 -j $NUM_CORES
         env:
           SWIFT_DETERMINISTIC_HASHING: 1
 
       - name: Create Universal Binary
         run: |
-          lipo -create \
+          xcrun lipo -create \
             .build/arm64-apple-macosx/release/HoopProxyManager \
             .build/x86_64-apple-macosx/release/HoopProxyManager \
             -output ./HoopProxyManager-macos
