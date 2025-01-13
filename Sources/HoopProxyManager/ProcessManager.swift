@@ -2,7 +2,7 @@ import Foundation
 
 
 struct ProcessManager {
-    static var shared = ProcessManager()
+    nonisolated(unsafe) static var shared = ProcessManager()
 
     var processes: [Process] = []
 

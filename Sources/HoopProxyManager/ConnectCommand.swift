@@ -8,7 +8,7 @@ import Glibc
 #endif
 
 struct ConnectCommand: AsyncParsableCommand {
-    static var configuration = CommandConfiguration(
+    nonisolated(unsafe) static var configuration = CommandConfiguration(
         commandName: "connect",
         abstract: "Connect to all configured Hoop instances"
     )
