@@ -1,6 +1,6 @@
 # Hoop Proxy Manager
 
-Hoop Proxy Manager is a Swift-based application designed to manage Hoop proxy connections. It uses the Hoop CLI to authenticate and make connections.
+Hoop Proxy Manager is an application designed to manage Hoop proxy connections. It uses the Hoop CLI to authenticate and make connections.
 
 ## Requirements
 - macOS 13 Ventura or later
@@ -33,6 +33,10 @@ To run the proxy, execute:
 It will start hoop cli login to renew the token and then start the proxy with the connections defined in the `~/.hoop/connections.toml` file.
 
 ## Development
+
+## Requirements
+- Swift 6 or later
+
 ### Building
 To build the project, run:
 ```sh
